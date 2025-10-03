@@ -46,19 +46,21 @@ Drilling.Draw = function()
 end
 
 Drilling.HandleControls = function()
-  local last_pos = Drilling.DrillPos
-
-  if IsControlJustPressed(0,172) then
-    Drilling.DrillPos = math.min(1.0,Drilling.DrillPos + 0.01)
-  elseif IsControlPressed(0,172) then
-    Drilling.DrillPos = math.min(1.0,Drilling.DrillPos + (0.1 * GetFrameTime() / (math.max(0.1,Drilling.DrillTemp) * 10)))
-  elseif IsControlJustPressed(0,173) then
-    Drilling.DrillPos = math.max(0.0,Drilling.DrillPos - 0.01)
-  elseif IsControlPressed(0,173) then
-    Drilling.DrillPos = math.max(0.0,Drilling.DrillPos - (0.1 * GetFrameTime()))
+  if IsControlJustPressed(0, 200) or IsControlJustPressed(0, 199) then
+    Drilling.Result = false
+    Drilling.Active = false
+    return
   end
 
+  local last_pos   = Drilling.DrillPos
   local last_speed = Drilling.DrillSpeed
+  local last_temp  = Drilling.DrillTemp
+
+  if IsControlPressed(0,172) then
+    Drilling.DrillPos = math.min(1.0, Drilling.DrillPos + (0.1 * GetFrameTime() / (math.max(0.1,Drilling.DrillTemp) * 10)))
+  elseif IsControlPressed(0,173) then
+    Drilling.DrillPos = math.max(0.0, Drilling.DrillPos - (0.1 * GetFrameTime())    )
+  end
 
   if IsControlJustPressed(0,175) then
     Drilling.DrillSpeed = math.min(1.0,Drilling.DrillSpeed + 0.05)
@@ -74,10 +76,8 @@ Drilling.HandleControls = function()
     Scaleforms.PopFloat(Drilling.Scaleform,"SET_SPEED",Drilling.DrillSpeed)
   end
 
-  local last_temp = Drilling.DrillTemp
-
   if Drilling.DrillPos > Drilling.HoleDepth then
-    if Drilling.DrillSpeed > 0.1  then
+    if Drilling.DrillSpeed > 0.1 then
       Drilling.DrillTemp = math.min(1.0, Drilling.DrillTemp + ((1.0 * GetFrameTime()) * Drilling.DrillSpeed))
       Drilling.HoleDepth = Drilling.DrillPos
     else
@@ -90,8 +90,7 @@ Drilling.HandleControls = function()
   if Drilling.DrillPos ~= last_pos then
     Scaleforms.PopFloat(Drilling.Scaleform,"SET_DRILL_POSITION",Drilling.DrillPos)
   end
-
-  if last_temp ~= Drilling.DrillTemp then
+  if Drilling.DrillTemp ~= last_temp then
     Scaleforms.PopFloat(Drilling.Scaleform,"SET_TEMPERATURE",Drilling.DrillTemp)
   end
 
@@ -117,3 +116,4 @@ Drilling.EnableControls = function()
 end
 
 AddEventHandler("Drilling:Start",Drilling.Start)
+
